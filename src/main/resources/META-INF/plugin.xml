@@ -13,8 +13,12 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
+        Convert Spring YAML configuration to Environment variables format and vice versa.<br>
+        <b>Features:</b><br>
+        <ul>
+            <li>Right-click on YAML text → Convert to ENV (copy to clipboard)</li>
+            <li>Right-click on ENV text → Convert to YAML (copy to clipboard)</li>
+        </ul>
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -29,5 +33,22 @@
         <toolWindow id="MyToolWindow" factoryClass="com.edc.MyToolWindowFactory"
                     icon="AllIcons.Toolwindows.ToolWindowPalette"/>
     </extensions>
+
+    <!-- Actions defined by the plugin -->
+    <actions>
+        <group id="com.edc.SpringYamlToEnvConverter.Group" text="YAML/ENV Converter" description="Convert between YAML and ENV formats">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            
+            <action id="com.edc.actions.YamlToEnvAction" 
+                    class="com.edc.actions.YamlToEnvAction" 
+                    text="Convert YAML to ENV" 
+                    description="Convert selected YAML text to ENV format and copy to clipboard"/>
+            
+            <action id="com.edc.actions.EnvToYamlAction" 
+                    class="com.edc.actions.EnvToYamlAction" 
+                    text="Convert ENV to YAML" 
+                    description="Convert selected ENV text to YAML format and copy to clipboard"/>
+        </group>
+    </actions>
 
 </idea-plugin>

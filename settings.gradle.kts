@@ -19,6 +19,12 @@ dependencyResolutionManagement {
     // Configure all projects' repositories
     repositories {
         mavenCentral()
+        
+        // Add Google Maven as fallback
+        google()
+        
+        // Add Gradle Plugin Portal explicitly
+        gradlePluginPortal()
 
         // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
         intellijPlatform {
