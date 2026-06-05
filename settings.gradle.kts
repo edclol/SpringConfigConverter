@@ -3,6 +3,13 @@ import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 rootProject.name = "SpringYamlToEnvConverter"
 
 pluginManagement {
+    repositories {
+        // Use Aliyun mirror for plugin management
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    
     plugins {
         id("org.jetbrains.kotlin.jvm") version "2.2.20"
         id("org.jetbrains.changelog") version "2.5.0"
@@ -18,6 +25,11 @@ plugins {
 dependencyResolutionManagement {
     // Configure all projects' repositories
     repositories {
+        // Use Aliyun mirror for China (faster and more stable)
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        
         mavenCentral()
         
         // Add Google Maven as fallback
