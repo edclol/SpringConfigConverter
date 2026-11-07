@@ -5,7 +5,7 @@ import org.yaml.snakeyaml.Yaml
 
 /**
  * Spring Boot Relaxed Binding 互转:
- * - ENV 键:小写点分键名 -> 大写、"." 变 "_"、"-" 移除,列表用 "_0_" 索引
+ * - ENV 键:小写点分键名 -> 大写、"." 变 "_"、"-" 原样保留,列表用 "_0_" 索引
  * - Properties 键:保持小写点分,列表用 "key[0]" 索引
  * - 扁平键按下划线/点号切分还原为嵌套结构,连续数字键还原为列表
  */
@@ -158,6 +158,6 @@ object ConfigConverter {
 
     private fun joinKey(path: List<String>, envStyle: Boolean): String =
         path.joinToString(if (envStyle) "_" else ".") { segment ->
-            if (envStyle) segment.replace(".", "_").replace("-", "").uppercase() else segment
+            if (envStyle) segment.replace(".", "_").uppercase() else segment
         }
 }
