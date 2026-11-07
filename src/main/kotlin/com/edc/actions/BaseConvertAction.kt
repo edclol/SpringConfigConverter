@@ -71,9 +71,20 @@ abstract class BaseConvertAction(private val target: ConfigFormat) : AnAction() 
 
         val source: ConfigFormat? = when {
             selection != null -> ConfigFormatDetector.detect(virtualFile?.name, selection)
-            virtualFile != null && !virtualFile.isDirectory -> ConfigFormatDetector.fromFileName(virtualFile.name)
+            virtualFile != null && !virtualFile.isDirectory ->
+                ConfigFormatDetector.fromFileName(virtualFile.name) ?: sniffContent(virtualFile)
             else -> null
         }
         e.presentation.isEnabledAndVisible = source != null && source != target
+    }
+
+    private fun sniffContent(file: VirtualFile): ConfigFormat? {
+        if (file.length > 5_000_000) return null
+        return try {
+            val document = FileDocumentManager.getInstance().getDocument(file) ?: return null
+            ConfigFormatDetector.fromContent(document.text)
+        } catch (ex: Exception) {
+            null
+        }
     }
 }

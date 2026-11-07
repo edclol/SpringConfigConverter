@@ -39,6 +39,7 @@
 
     <actions>
         <group id="com.edc.SpringConfigConverter.Group"
+               popup="true"
                text="Spring 配置转换"
                description="Convert between YAML, Properties and ENV (Spring Boot style)">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
