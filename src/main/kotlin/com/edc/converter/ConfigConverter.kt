@@ -30,7 +30,7 @@ object ConfigConverter {
 
     @Suppress("UNCHECKED_CAST")
     private fun parseYaml(text: String): LinkedHashMap<String, Any> {
-        val loaded = Yaml().load(text) ?: return LinkedHashMap()
+        val loaded: Any? = Yaml().load<Any>(text) ?: return LinkedHashMap()
         if (loaded !is Map<*, *>) {
             throw IllegalArgumentException("YAML 顶层必须是键值映射")
         }
