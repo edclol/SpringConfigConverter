@@ -3,45 +3,68 @@
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
     <id>com.edc.SpringYamlToEnvConverter</id>
 
-    <!-- Public plugin name should be written in Title Case.
-     Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>SpringYamlToEnvConverter</name>
+    <name>SpringConfigConverter</name>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.edc.com">edc</vendor>
 
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Convert Spring YAML configuration to Environment variables format and vice versa.<br>
-        <b>Features:</b><br>
+        Spring Boot 配置格式转换：YAML / Properties / ENV 三种格式互转，遵循 Spring Boot Relaxed Binding 规则。<br>
+        <b>功能：</b><br>
         <ul>
-            <li>Right-click on YAML text → Convert to ENV (copy to clipboard)</li>
-            <li>Right-click on ENV text → Convert to YAML (copy to clipboard)</li>
+            <li>编辑器选中文本 → 右键菜单转换（复制到剪贴板），或 Alt+Enter 意图原地替换</li>
+            <li>右键文件（Project 视图 / 编辑器标签页）→ 整文件转换，同目录生成目标文件</li>
+            <li>按文件后缀自动识别格式：.yml/.yaml、.properties、.env</li>
+            <li>快捷键：Alt+Shift+Y（转 YAML）、Alt+Shift+P（转 Properties）、Alt+Shift+E（转 ENV）</li>
         </ul>
         ]]></description>
 
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
-    <!-- Extensions defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="SpringYamlToEnvConverter" displayType="BALLOON"/>
 
-    <!-- Actions defined by the plugin -->
+        <intentionAction>
+            <className>com.edc.intentions.ConvertToYamlIntention</className>
+            <category>Spring 配置转换</category>
+        </intentionAction>
+        <intentionAction>
+            <className>com.edc.intentions.ConvertToPropertiesIntention</className>
+            <category>Spring 配置转换</category>
+        </intentionAction>
+        <intentionAction>
+            <className>com.edc.intentions.ConvertToEnvIntention</className>
+            <category>Spring 配置转换</category>
+        </intentionAction>
+    </extensions>
+
     <actions>
-        <group id="com.edc.SpringYamlToEnvConverter.Group" text="YAML/ENV Converter" description="Convert between YAML and ENV formats">
+        <group id="com.edc.SpringConfigConverter.Group"
+               text="Spring 配置转换"
+               description="Convert between YAML, Properties and ENV (Spring Boot style)">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
-            
-            <action id="com.edc.actions.YamlToEnvAction" 
-                    class="com.edc.actions.YamlToEnvAction" 
-                    text="Convert YAML to ENV" 
-                    description="Convert selected YAML text to ENV format and copy to clipboard"/>
-            
-            <action id="com.edc.actions.EnvToYamlAction" 
-                    class="com.edc.actions.EnvToYamlAction" 
-                    text="Convert ENV to YAML" 
-                    description="Convert selected ENV text to YAML format and copy to clipboard"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
+
+            <action id="com.edc.actions.ConvertToYamlAction"
+                    class="com.edc.actions.ConvertToYamlAction"
+                    text="转换为 YAML"
+                    description="Convert to YAML format">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt shift Y"/>
+            </action>
+
+            <action id="com.edc.actions.ConvertToPropertiesAction"
+                    class="com.edc.actions.ConvertToPropertiesAction"
+                    text="转换为 Properties"
+                    description="Convert to Properties format">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt shift P"/>
+            </action>
+
+            <action id="com.edc.actions.ConvertToEnvAction"
+                    class="com.edc.actions.ConvertToEnvAction"
+                    text="转换为 ENV"
+                    description="Convert to ENV format">
+                <keyboard-shortcut keymap="$default" first-keystroke="alt shift E"/>
+            </action>
         </group>
     </actions>
 
