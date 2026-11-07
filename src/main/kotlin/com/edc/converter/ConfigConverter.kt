@@ -36,7 +36,7 @@ object ConfigConverter {
         }
         val result = LinkedHashMap<String, Any>()
         for ((key, value) in loaded as Map<Any, Any>) {
-            if (value != null) result[key.toString()] = value
+            result[key.toString()] = value
         }
         return result
     }
