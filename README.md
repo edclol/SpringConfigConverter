@@ -30,6 +30,7 @@ IntelliJ 平台插件：Spring Boot 配置三格式互转（YAML / Properties / 
 ```bash
 git tag v2.0.0
 git push origin v2.0.0
+
 ```
 
 需要给旧版本出补丁时，从对应标签拉出分支修复（如 `git checkout v2.0.0 -b release/2.x`），修完打新标签即可复用同一流水线。工作流定义见 [.github/workflows/release.yml](.github/workflows/release.yml)。
