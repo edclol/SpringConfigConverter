@@ -14,7 +14,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import java.awt.datatransfer.StringSelection
-import java.io.IOException
 
 abstract class BaseConvertAction(private val target: ConfigFormat) : AnAction() {
 
@@ -52,13 +51,17 @@ abstract class BaseConvertAction(private val target: ConfigFormat) : AnAction() 
         val targetName = "${sourceFile.nameWithoutExtension}.${target.fileExtension}"
         try {
             val converted = ConfigConverter.convert(text, ConfigFormatDetector.detect(sourceFile.name, text), target)
+            var overwritten = false
             ApplicationManager.getApplication().runWriteAction {
-                if (parent.findChild(targetName) != null) {
-                    throw IOException("目标文件已存在: $targetName")
-                }
-                VfsUtil.saveText(parent.createChildData(this@BaseConvertAction, targetName), converted)
+                val existing = parent.findChild(targetName)
+                overwritten = existing != null
+                VfsUtil.saveText(existing ?: parent.createChildData(this@BaseConvertAction, targetName), converted)
             }
-            ConverterNotifications.info(project, "已生成 $targetName")
+            if (overwritten) {
+                ConverterNotifications.info(project, "已覆盖 $targetName")
+            } else {
+                ConverterNotifications.info(project, "已生成 $targetName")
+            }
         } catch (ex: Exception) {
             ConverterNotifications.error(project, "转换失败: ${ex.message}")
         }
