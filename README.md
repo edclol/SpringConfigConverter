@@ -1,117 +1,41 @@
-# SpringYamlToEnvConverter
+# SpringConfigConverter
 
-[![Twitter Follow](https://img.shields.io/badge/follow-%40JBPlatform-1DA1F2?logo=twitter)](https://twitter.com/JBPlatform)
-[![Developers Forum](https://img.shields.io/badge/JetBrains%20Platform-Join-blue)][jb:forum]
+IntelliJ 平台插件：Spring Boot 配置三格式互转（YAML / Properties / ENV），转换规则遵循 Spring Boot Relaxed Binding。
 
-## Plugin structure
+## 功能
 
-A generated project contains the following content structure:
+- **选中文本转换**：编辑器中选中配置文本 → 右键菜单「Spring 配置转换」（结果复制到剪贴板），或 `Alt+Enter` 意图原地替换选区（支持撤销）
+- **整文件转换**：右键文件（Project 视图 / 编辑器标签页）→ 在同目录生成目标格式新文件（如 `application.yml` → `application.properties`），重复执行会覆盖旧文件
+- **格式自动识别**：按文件后缀识别 `.yml`/`.yaml`、`.properties`、`.env`，菜单项按源格式动态显隐（不显示与源相同的格式）
+- **Spring 宽松绑定规则**：ENV 键大写、`.` 变 `_`、`-` 原样保留；properties 列表用 `key[0]` 索引，ENV 列表用 `_0_`；数值/布尔值转 YAML 时不带引号
+- **快捷键**：`Alt+Shift+Y`（转 YAML）/ `Alt+Shift+P`（转 Properties）/ `Alt+Shift+E`（转 ENV）
+- **通知反馈**：转换成功/失败均有 IDE 通知，失败时给出具体原因
 
-```
-.
-├── .run/                   Predefined Run/Debug Configurations
-├── build/                  Output build directory
-├── gradle
-│   ├── wrapper/            Gradle Wrapper
-│   ├── libs.versions.toml  Version catalog
-├── src                     Plugin sources
-│   ├── main
-│   │   ├── kotlin/         Kotlin production sources
-│   │   └── resources/      Resources - plugin.xml, icons, messages
-├── .gitignore              Git ignoring rules
-├── build.gradle.kts        Gradle build configuration
-├── gradle.properties       Gradle configuration properties
-├── gradlew                 *nix Gradle Wrapper script
-├── gradlew.bat             Windows Gradle Wrapper script
-├── README.md               README
-└── settings.gradle.kts     Gradle project settings
+## 构建
+
+```bash
+./gradlew buildPlugin
 ```
 
-In addition to the configuration files, the most crucial part is the `src` directory, which contains our implementation
-and the manifest for our plugin – [plugin.xml][file:plugin.xml].
+产物位于 `build/distributions/*.zip`。本机构建需 JDK 17+（`gradle.properties` 中 `org.gradle.java.home` 指向本机 JDK 21，换机器时请相应调整）。
 
-> [!NOTE]
-> To use Java in your plugin, create the `/src/main/java` directory.
+## 安装
 
-## Plugin configuration file
+从 [Releases](https://github.com/edclol/SpringYamlToEnvConverter/releases) 下载 zip，然后 Settings → Plugins → ⚙️ → Install Plugin from Disk → 重启 IDE。
 
-The plugin configuration file is a [plugin.xml][file:plugin.xml] file located in the `src/main/resources/META-INF`
-directory.
-It provides general information about the plugin, its dependencies, extensions, and listeners.
+## 版本管理与发布
 
-You can read more about this file in the [Plugin Configuration File][docs:plugin.xml] section of our documentation.
+版本以 **标签** 管理：日常开发在 `main`，发版时打 `vX.Y.Z` 标签（需与 `gradle.properties` 的 `version` 一致），推送后 GitHub Actions 自动构建并发布 Release：
 
-If you're still not quite sure what this is all about, read [Introduction to IntelliJ Platform][docs:intro].
+```bash
+git tag v2.0.0
+git push origin v2.0.0
+```
 
-## Predefined Run/Debug configurations
+需要给旧版本出补丁时，从对应标签拉出分支修复（如 `git checkout v2.0.0 -b release/2.x`），修完打新标签即可复用同一流水线。工作流定义见 [.github/workflows/release.yml](.github/workflows/release.yml)。
 
-Within the default project structure, there is a `.run` directory provided containing predefined *Run/Debug
-configurations* that expose corresponding Gradle tasks:
+## 技术要点
 
-| Configuration name | Description                                                                                                                                                                         |
-|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Run Plugin         | Runs [`:runIde`][gh:intellij-platform-gradle-plugin-runIde] IntelliJ Platform Gradle Plugin task. Use the *Debug* icon for plugin debugging.                                        |
-| Run Tests          | Runs [`:test`][gradle:lifecycle-tasks] Gradle task.                                                                                                                                 |
-| Run Verifications  | Runs [`:verifyPlugin`][gh:intellij-platform-gradle-plugin-verifyPlugin] IntelliJ Platform Gradle Plugin task to check the plugin compatibility against the specified IntelliJ IDEs. |
-
-> [!NOTE]
-> You can find the logs from the running task in the `idea.log` tab.
-
-## Publishing the plugin
-
-> [!TIP]
-> Make sure to follow all guidelines listed in [Publishing a Plugin][docs:publishing] to follow all recommended and
-> required steps.
-
-Releasing a plugin to [JetBrains Marketplace](https://plugins.jetbrains.com) is a straightforward operation that uses
-the `publishPlugin` Gradle task provided by
-the [intellij-platform-gradle-plugin][gh:intellij-platform-gradle-plugin-docs].
-
-You can also upload the plugin to the [JetBrains Plugin Repository](https://plugins.jetbrains.com/plugin/upload)
-manually via UI.
-
-## Useful links
-
-- [IntelliJ Platform SDK Plugin SDK][docs]
-- [IntelliJ Platform Gradle Plugin Documentation][gh:intellij-platform-gradle-plugin-docs]
-- [IntelliJ Platform Explorer][jb:ipe]
-- [JetBrains Marketplace Quality Guidelines][jb:quality-guidelines]
-- [IntelliJ Platform UI Guidelines][jb:ui-guidelines]
-- [JetBrains Marketplace Paid Plugins][jb:paid-plugins]
-- [IntelliJ SDK Code Samples][gh:code-samples]
-
-[docs]: https://plugins.jetbrains.com/docs/intellij
-
-[docs:intro]: https://plugins.jetbrains.com/docs/intellij/intellij-platform.html?from=IJPluginTemplate
-
-[docs:plugin.xml]: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html?from=IJPluginTemplate
-
-[docs:publishing]: https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate
-
-[file:plugin.xml]: ./src/main/resources/META-INF/plugin.xml
-
-[gh:code-samples]: https://github.com/JetBrains/intellij-sdk-code-samples
-
-[gh:intellij-platform-gradle-plugin]: https://github.com/JetBrains/intellij-platform-gradle-plugin
-
-[gh:intellij-platform-gradle-plugin-docs]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
-
-[gh:intellij-platform-gradle-plugin-runIde]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html#runIde
-
-[gh:intellij-platform-gradle-plugin-verifyPlugin]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html#verifyPlugin
-
-[gradle:lifecycle-tasks]: https://docs.gradle.org/current/userguide/java_plugin.html#lifecycle_tasks
-
-[jb:github]: https://github.com/JetBrains/.github/blob/main/profile/README.md
-
-[jb:forum]: https://platform.jetbrains.com/
-
-[jb:quality-guidelines]: https://plugins.jetbrains.com/docs/marketplace/quality-guidelines.html
-
-[jb:paid-plugins]: https://plugins.jetbrains.com/docs/marketplace/paid-plugins-marketplace.html
-
-[jb:quality-guidelines]: https://plugins.jetbrains.com/docs/marketplace/quality-guidelines.html
-
-[jb:ipe]: https://jb.gg/ipe
-
-[jb:ui-guidelines]: https://jetbrains.github.io/ui
+- YAML 解析/生成使用 IntelliJ 平台自带的 SnakeYAML
+- 转换核心：统一解析为嵌套 Map 中间表示，再按目标格式渲染；连续数字键自动还原为列表
+- 最低兼容 IntelliJ Platform 2025.3（构建基于 `intellij-platform-gradle-plugin`）

@@ -2,3 +2,7 @@
 .idea
 .intellijPlatform
 build
+
+# 全局 gitignore 忽略了 .* 目录，这里重新包含 CI 工作流
+!.github/
+!.github/**
