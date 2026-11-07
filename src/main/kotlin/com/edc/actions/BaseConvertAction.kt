@@ -4,6 +4,7 @@ import com.edc.ConverterNotifications
 import com.edc.converter.ConfigConverter
 import com.edc.converter.ConfigFormat
 import com.edc.converter.ConfigFormatDetector
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -16,6 +17,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import java.awt.datatransfer.StringSelection
 
 abstract class BaseConvertAction(private val target: ConfigFormat) : AnAction() {
+
+    override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
@@ -74,20 +77,9 @@ abstract class BaseConvertAction(private val target: ConfigFormat) : AnAction() 
 
         val source: ConfigFormat? = when {
             selection != null -> ConfigFormatDetector.detect(virtualFile?.name, selection)
-            virtualFile != null && !virtualFile.isDirectory ->
-                ConfigFormatDetector.fromFileName(virtualFile.name) ?: sniffContent(virtualFile)
+            virtualFile != null && !virtualFile.isDirectory -> ConfigFormatDetector.fromFileName(virtualFile.name)
             else -> null
         }
         e.presentation.isEnabledAndVisible = source != null && source != target
-    }
-
-    private fun sniffContent(file: VirtualFile): ConfigFormat? {
-        if (file.length > 5_000_000) return null
-        return try {
-            val document = FileDocumentManager.getInstance().getDocument(file) ?: return null
-            ConfigFormatDetector.fromContent(document.text)
-        } catch (ex: Exception) {
-            null
-        }
     }
 }

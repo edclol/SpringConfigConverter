@@ -116,8 +116,11 @@ object ConfigConverter {
         ConfigFormat.YAML -> {
             val options = DumperOptions().apply {
                 defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+                indent = 2
+                indicatorIndent = 2
+                indentWithIndicator = true
             }
-            Yaml(options).dump(root)
+            Yaml(options).dump(coerceScalars(root))
         }
         ConfigFormat.PROPERTIES -> flatten(root, envStyle = false)
             .joinToString("\n") { (key, value) -> "$key=$value" }
@@ -160,4 +163,26 @@ object ConfigConverter {
         path.joinToString(if (envStyle) "_" else ".") { segment ->
             if (envStyle) segment.replace(".", "_").uppercase() else segment
         }
+
+    /**
+     * 扁平键值过来的标量都是字符串,转 YAML 时还原为数字/布尔,
+     * 避免 SnakeYAML 为保类型输出 '8080' 这类带引号的标量
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun coerceScalars(value: Any): Any = when (value) {
+        is Map<*, *> -> {
+            val out = LinkedHashMap<String, Any>()
+            value.forEach { (k, v) -> if (v != null) out[k.toString()] = coerceScalars(v) }
+            out
+        }
+        is List<*> -> value.map { coerceScalars(it ?: "") }
+        is String -> coerceScalar(value)
+        else -> value
+    }
+
+    private fun coerceScalar(text: String): Any = when {
+        text.equals("true", ignoreCase = true) || text.equals("false", ignoreCase = true) -> text.toBoolean()
+        text.length > 1 && text.startsWith("0") -> text
+        else -> text.toLongOrNull() ?: text
+    }
 }
